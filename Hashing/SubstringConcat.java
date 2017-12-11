@@ -3,62 +3,57 @@ public class SubstringConcat {
     ArrayList<Integer> intList = new ArrayList<Integer>();
     
 	public ArrayList<Integer> findSubstring(String a, final List<String> b) {
-	    ArrayList<Integer> emptyList = new ArrayList<Integer>();
-	    List<String> newList = new ArrayList<String>( b.size() );
-	    for( int i=0; i<b.size(); i++)
-	        newList.add(i,b.get(i) );
-	    
-	    if ( b.size() < 1 )
-	        return emptyList;
-	    int wordLength = b.get(0).length();
-	    int maxCombinedLength = wordLength * b.size();
-	    
-	    if( maxCombinedLength > a.length() )
-	        return emptyList;
+        ArrayList<Integer> emptyList = new ArrayList<Integer>();
 
+        if ( b.size() < 1 )
+            return emptyList;
+        Collections.sort(b);
+
+        int totalSum = getHashSum( b );
+
+        int wordLength = b.get(0).length();
+        int maxCombinedLength = wordLength * b.size();
+
+        if( maxCombinedLength > a.length() )
+            return emptyList;
+            
         for( int i=0; i<a.length()-maxCombinedLength+1; i++ ) {
-            String substr = a.substring(i,i+maxCombinedLength);
-            Integer val = (Integer)map.get(substr);
-            if( val == null ) {
-                //System.out.println( substr );
-                map.put( substr, new Integer(i) );
+            int sum = 0;
+            for( int j=i; j<i+maxCombinedLength; j += wordLength ) {
+               String word = a.substring(j,j+wordLength);
+               sum += word.hashCode();
             }
-         }
-
-	     permutations( newList, 0, b.size() - 1);
-	     
-	     return( intList );
-	}
-	
-	public void permutations( List<String> list, int left, int right) {
-        if( left == right ) {
-            String str = getString( list );
-            Integer val = (Integer)map.get( str );
-            //System.out.print( str + ":" + val );
-            if( val != null ) {
-                intList.add(val);
-            }
-        } else {
-            for( int i=left; i<=right; i++) {
-                list = swap( list, left, i );
-                permutations( list, left+1, right);
-                list = swap( list, left, i);
+            
+            ArrayList<String> list = null;
+            if( sum == totalSum ) {
+                list = new ArrayList<String>();
+                for( int j=i; j<i+maxCombinedLength; j += wordLength ) {
+                    String word = a.substring(j,j+wordLength);
+                    list.add( word );
+                }
+                Collections.sort( list );
+                if( isEqual(b,list) )
+                    intList.add(i);
             }
         }
+        
+        return( intList );
+	}
+	
+	boolean isEqual( List<String> a, List<String> b ) {
+        for( int i=0; i<a.size(); i++) {
+            if( !a.get(i).equals( b.get(i) ))
+                return false;
+        }
+        return true;
+    }
+	
+	public static int getHashSum( List<String> list ) {
+        int sum = 0;
+        for( int i=0; i<list.size(); i++ )
+            sum += list.get(i).hashCode();
+
+        return sum;
     }
 
-    public  List<String> swap( List<String> list, int i, int j ) {
-        String temp = list.get(i);
-        list.set(i,list.get(j));
-        list.set(j,temp);
-        return list;
-    }
-    
-    String getString( List<String> list ) {
-        StringBuilder sb = new StringBuilder();
-        for( int i=0; i<list.size(); i++)
-            sb.append(list.get(i));
-
-        return( sb.toString() );
-    }
 }
